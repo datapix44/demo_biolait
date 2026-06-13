@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-cormorant: var(--font-cormorant);
+  --font-poppins: var(--font-poppins);
+
+  --color-terracotta: #C98572;
+  --color-terracotta-light: #D4A394;
+  --color-terracotta-dark: #B06B58;
+  --color-encre: #22354B;
+  --color-encre-light: #2D4562;
+  --color-encre-dark: #192838;
+  --color-ivoire: #F8F5F0;
+  --color-ivoire-warm: #F5F0E8;
+  --color-sauge: #A6B4A1;
+  --color-sauge-light: #B8C4B4;
+  --color-champagne: #D7C1A1;
+  --color-champagne-light: #E2D1B8;
+
+  --color-background: #F8F5F0;
+  --color-foreground: #22354B;
+  --color-border: #E2D1B8;
+  --color-muted: #F0EBE3;
+  --color-muted-foreground: #7A8A9A;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-poppins), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-cormorant), Georgia, serif;
+  }
+
+  ::selection {
+    background: rgba(201, 133, 114, 0.2);
+    color: #22354B;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D7C1A1;
+    border-radius: 9999px;
+  }
+}
+
+@layer utilities {
+  .font-cormorant {
+    font-family: var(--font-cormorant), Georgia, serif;
+  }
+
+  .font-poppins {
+    font-family: var(--font-poppins), system-ui, sans-serif;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #C98572 0%, #22354B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .card-hover {
+    transition: all 0.3s ease-out;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(201, 133, 114, 0.12);
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      #F8F5F0 25%,
+      #E2D1B8 50%,
+      #F8F5F0 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out both;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out both;
+  }
+}
