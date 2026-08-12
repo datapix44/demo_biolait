@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>api-calendar — generateur d'images de calendrier</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --ink: #16181d;
+    --muted: #6b7280;
+    --line: #e4e7ec;
+    --accent: #023c88;
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101216; --panel: #181b21; --ink: #eceef2;
+      --muted: #9aa2ae; --line: #272b33; --accent: #7aa2f7;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 28px 24px 20px; border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  main {
+    max-width: 1040px; margin: 0 auto; padding: 24px;
+    display: grid; gap: 24px; grid-template-columns: 340px 1fr;
+  }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px;
+  }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  input, select {
+    width: 100%; padding: 9px 10px; font: inherit; font-size: 14px;
+    color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 8px;
+  }
+  input[type=color] { padding: 3px; height: 38px; }
+  input[type=range] { padding: 0; background: none; border: none; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .preview {
+    display: grid; place-items: center; min-height: 340px;
+    border-radius: var(--radius);
+    background-image:
+      linear-gradient(45deg, var(--line) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--line) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--line) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--line) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  }
+  .preview img { max-width: 100%; height: auto; }
+  .urlbar { margin-top: 16px; display: flex; gap: 8px; }
+  .urlbar input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  button {
+    padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer;
+    color: #fff; background: var(--accent); border: none; border-radius: 8px;
+    white-space: nowrap;
+  }
+  button.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .presets button { padding: 6px 10px; font-size: 12px; font-weight: 500; }
+  .swatch { width: 22px; height: 22px; border-radius: 5px; border: 1px solid rgba(0,0,0,.15); }
+  footer { max-width: 1040px; margin: 0 auto; padding: 0 24px 40px; color: var(--muted); font-size: 13px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>api-calendar</h1>
+  <p>Generateur d'images de calendrier a la demande — une URL, trois parametres.</p>
+</header>
+
+<main>
+  <form class="panel" id="form">
+    <label for="date">Date</label>
+    <input id="date" name="date" value="12 AOUT" placeholder="12 AOUT ou 2026-08-12">
+
+    <label for="time">Heure</label>
+    <input id="time" name="time" value="14:30" placeholder="14:30 (vide = masquee)">
+
+    <div class="row">
+      <div>
+        <label for="accent">Couleur d'accent</label>
+        <input id="accent" name="accent" type="color" value="#023c88">
+      </div>
+      <div>
+        <label for="format">Format</label>
+        <select id="format" name="format">
+          <option>png</option><option>webp</option>
+          <option>jpeg</option><option>avif</option><option>svg</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="size">Taille — <span id="sizeLabel">400</span> px</label>
+    <input id="size" name="size" type="range" min="64" max="1200" step="8" value="400">
+
+    <div class="presets">
+      <button type="button" class="ghost" data-accent="#023c88">Bleu</button>
+      <button type="button" class="ghost" data-accent="#e81c24">Rouge</button>
+      <button type="button" class="ghost" data-accent="#1a8f4c">Vert</button>
+      <button type="button" class="ghost" data-accent="#f26522">Orange</button>
+      <button type="button" class="ghost" data-accent="#33383f">Ardoise</button>
+    </div>
+  </form>
+
+  <section>
+    <div class="preview"><img id="preview" alt="Apercu du calendrier genere"></div>
+    <div class="urlbar">
+      <input id="url" readonly>
+      <button type="button" id="copy">Copier</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Autres parametres : <code>text</code>, <code>paper</code>, <code>ring</code>, <code>bg</code>,
+  <code>shadow</code>, <code>style</code>, <code>locale</code>, <code>tz</code>, <code>quality</code>.
+  Liste complete sur <a href="/v1/options">/v1/options</a>.
+</footer>
+
+<script>
+  const form = document.getElementById('form');
+  const preview = document.getElementById('preview');
+  const urlField = document.getElementById('url');
+  const sizeInput = document.getElementById('size');
+  const sizeLabel = document.getElementById('sizeLabel');
+
+  function buildUrl() {
+    const data = new FormData(form);
+    const format = data.get('format');
+    const params = new URLSearchParams();
+    for (const key of ['date', 'time', 'accent', 'size']) {
+      const value = String(data.get(key) ?? '').trim();
+      if (value) params.set(key, key === 'accent' ? value.replace('#', '') : value);
+    }
+    return `${location.origin}/v1/calendar.${format}?${params}`;
+  }
+
+  function refresh() {
+    sizeLabel.textContent = sizeInput.value;
+    const url = buildUrl();
+    urlField.value = url;
+    preview.src = url;
+  }
+
+  form.addEventListener('input', refresh);
+  document.querySelectorAll('[data-accent]').forEach((button) => {
+    button.addEventListener('click', () => {
+      document.getElementById('accent').value = button.dataset.accent;
+      refresh();
+    });
+  });
+  document.getElementById('copy').addEventListener('click', async () => {
+    await navigator.clipboard.writeText(urlField.value);
+    const button = document.getElementById('copy');
+    button.textContent = 'Copie !';
+    setTimeout(() => { button.textContent = 'Copier'; }, 1200);
+  });
+
+  refresh();
+</script>
+</body>
+</html>
